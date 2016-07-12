@@ -17,22 +17,16 @@ instance CurrentTime TestM where
 instance HostName TestM where
   getHostName = return "myhostname"
 
-
+tests =
+  [ fmap (== "The time is Thu,  1 Jan 1970 00:00:00 UTC") myTime
+  , fmap (== "The hostname of this computer is \"myhostname\"") myHostName
+  , fmap (== "The time is Thu,  1 Jan 1970 00:00:00 UTC\nThe hostname of this computer is \"myhostname\"") both
+  ]
 
 main :: IO ()
 main = do
-  if runTestM myTime /= "The time is Thu,  1 Jan 1970 00:00:00 UTC"
-    then
+  let results = runTestM (sequenceA tests)
+  if all (== True) results then
+    exitSuccess
+    else
     exitFailure
-    else
-    if runTestM myHostName /=
-       "The hostname of this computer is \"myhostname\""
-    then
-      exitFailure
-    else
-      if runTestM both /=
-        "The time is Thu,  1 Jan 1970 00:00:00 UTC\nThe hostname of this computer is \"myhostname\""
-      then
-        exitFailure
-      else
-        exitSuccess

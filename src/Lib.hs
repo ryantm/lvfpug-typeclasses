@@ -1,13 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Lib (
-    printTime
-  , myTime
-  , CurrentTime (..)
-  , myHostName
-  , HostName (..)
-  , both
-  ) where
+module Lib where
 
 import qualified Data.Time.Clock
 import qualified Network.BSD
@@ -43,10 +36,7 @@ myHostName = do
   return ("The hostname of this computer is " ++ show n)
 
 both :: (HostName m, CurrentTime m) => m String
-both = do
-  s1 <- myTime
-  s2 <- myHostName
-  return (s1 ++ "\n" ++ s2)
+both = fmap mconcat (sequenceA [myTime, pure "\n", myHostName])
 
 printTime :: IO ()
 printTime = do
